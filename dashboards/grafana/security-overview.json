@@ -1,0 +1,129 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": { "type": "grafana", "uid": "-- Grafana --" },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [],
+  "panels": [
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": { "color": { "mode": "palette-classic" }, "unit": "short" }
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+      "id": 1,
+      "options": { "legend": { "displayMode": "list", "placement": "bottom" } },
+      "targets": [
+        {
+          "expr": "aws_wafv2_blocked_requests_sum{rule=\"ALL\"}",
+          "legendFormat": "Blocked",
+          "refId": "A"
+        },
+        {
+          "expr": "aws_wafv2_allowed_requests_sum{rule=\"ALL\"}",
+          "legendFormat": "Allowed",
+          "refId": "B"
+        }
+      ],
+      "title": "WAF Requests (CloudWatch 5m sum)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": { "color": { "mode": "thresholds" }, "thresholds": { "steps": [{ "color": "green", "value": null }, { "color": "red", "value": 10 }] } }
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+      "id": 2,
+      "targets": [
+        { "expr": "sum(aws_wafv2_blocked_requests_sum{rule=\"ALL\"})", "refId": "A" }
+      ],
+      "title": "Total Blocks (latest period)",
+      "type": "stat"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 8 },
+      "id": 3,
+      "targets": [
+        { "expr": "aws_wafv2_blocked_requests_sum{rule=~\".*SQLi.*\"}", "legendFormat": "{{rule}}", "refId": "A" }
+      ],
+      "title": "SQLi Blocks",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 8 },
+      "id": 4,
+      "targets": [
+        { "expr": "aws_wafv2_blocked_requests_sum{rule=~\".*CommonRuleSet.*\"}", "legendFormat": "{{rule}}", "refId": "A" }
+      ],
+      "title": "XSS / Common Rule Blocks",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 8 },
+      "id": 5,
+      "targets": [
+        { "expr": "aws_wafv2_blocked_requests_sum{rule=~\".*Bot.*\"}", "legendFormat": "{{rule}}", "refId": "A" }
+      ],
+      "title": "Bot Blocks",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 16 },
+      "id": 6,
+      "targets": [
+        { "expr": "100 - (avg by(instance) (rate(node_cpu_seconds_total{mode=\"idle\"}[5m])) * 100)", "legendFormat": "{{instance}}", "refId": "A" }
+      ],
+      "title": "Node CPU %",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 16 },
+      "id": 7,
+      "targets": [
+        { "expr": "probe_success{job=\"blackbox-alb\"}", "legendFormat": "ALB Health", "refId": "A" }
+      ],
+      "title": "ALB Probe",
+      "type": "timeseries"
+    }
+  ],
+  "refresh": "30s",
+  "schemaVersion": 39,
+  "tags": ["waf", "security"],
+  "templating": {
+    "list": [
+      {
+        "current": { "text": "dev", "value": "dev" },
+        "name": "environment",
+        "options": [
+          { "text": "dev", "value": "dev" },
+          { "text": "test", "value": "test" },
+          { "text": "prod", "value": "prod" }
+        ],
+        "type": "custom"
+      }
+    ]
+  },
+  "time": { "from": "now-6h", "to": "now" },
+  "title": "WAF Security Overview",
+  "uid": "waf-security-overview",
+  "version": 2
+}

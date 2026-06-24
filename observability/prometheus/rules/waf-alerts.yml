@@ -1,0 +1,124 @@
+groups:
+  - name: waf_security_alerts
+    rules:
+      - alert: HighBlockRate
+        expr: sum(rate(aws_wafv2_blocked_requests_sum[5m])) > 10
+        for: 5m
+        labels:
+          severity: critical
+          team: security
+        annotations:
+          summary: "High WAF block rate detected"
+          description: "Block rate exceeds threshold for 5 minutes."
+
+      - alert: SQLiSurge
+        expr: sum(rate(aws_wafv2_blocked_requests_sum{rule="AWSManagedRulesSQLiRuleSet"}[5m])) > 2
+        for: 3m
+        labels:
+          severity: high
+          team: security
+        annotations:
+          summary: "SQL injection attack surge"
+          description: "Elevated SQLi blocks detected."
+
+      - alert: XSSSurge
+        expr: sum(rate(aws_wafv2_blocked_requests_sum{rule=~".*BadInputs.*"}[5m])) > 2
+        for: 3m
+        labels:
+          severity: high
+          team: security
+        annotations:
+          summary: "XSS attack surge"
+          description: "Elevated XSS blocks detected."
+
+      - alert: BotAttackSurge
+        expr: sum(rate(aws_wafv2_blocked_requests_sum{rule=~".*Bot.*"}[5m])) > 5
+        for: 5m
+        labels:
+          severity: medium
+          team: security
+        annotations:
+          summary: "Bot attack surge"
+          description: "Elevated bot control blocks detected."
+
+      - alert: TopAttackerSpike
+        expr: sum(rate(aws_wafv2_blocked_requests_sum[1m])) > 50
+        for: 2m
+        labels:
+          severity: high
+          team: security
+        annotations:
+          summary: "Potential coordinated attack"
+          description: "Sudden spike in blocked requests."
+
+  - name: infrastructure_alerts
+    rules:
+      - alert: HighCPUUsage
+        expr: 100 - (avg by(instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 85
+        for: 10m
+        labels:
+          severity: medium
+          team: platform
+        annotations:
+          summary: "High CPU on {{ $labels.instance }}"
+          description: "CPU usage above 85% for 10 minutes."
+
+      - alert: HighMemoryUsage
+        expr: (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100 > 90
+        for: 10m
+        labels:
+          severity: medium
+          team: platform
+        annotations:
+          summary: "High memory on {{ $labels.instance }}"
+          description: "Memory usage above 90%."
+
+      - alert: DiskSpaceLow
+        expr: (node_filesystem_avail_bytes{mountpoint="/"} / node_filesystem_size_bytes{mountpoint="/"}) * 100 < 15
+        for: 15m
+        labels:
+          severity: high
+          team: platform
+        annotations:
+          summary: "Low disk space on {{ $labels.instance }}"
+          description: "Less than 15% disk space remaining."
+
+      - alert: LambdaErrors
+        expr: sum(rate(aws_lambda_errors_sum[5m])) > 0
+        for: 5m
+        labels:
+          severity: high
+          team: platform
+        annotations:
+          summary: "Lambda function errors"
+          description: "Report generator Lambda is failing."
+
+      - alert: FirehoseDeliveryFailures
+        expr: aws_firehose_delivery_to_s3_success_average < 0.95
+        for: 10m
+        labels:
+          severity: critical
+          team: platform
+        annotations:
+          summary: "Firehose delivery degraded"
+          description: "S3 delivery success below 95%."
+
+      - alert: PrometheusTargetDown
+        expr: up == 0
+        for: 5m
+        labels:
+          severity: critical
+          team: platform
+        annotations:
+          summary: "Prometheus target down"
+          description: "Target {{ $labels.instance }} is unreachable."
+
+      - alert: BlackboxProbeFailure
+        expr: probe_success == 0
+        for: 5m
+        labels:
+          severity: high
+          team: platform
+        annotations:
+          summary: "ALB health probe failed"
+          description: "Blackbox exporter cannot reach ALB endpoint."

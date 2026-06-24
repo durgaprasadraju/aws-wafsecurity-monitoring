@@ -1,0 +1,61 @@
+{
+  "title": "Threat Intelligence",
+  "uid": "waf-threat-intel",
+  "tags": ["waf", "threat-intel"],
+  "timezone": "browser",
+  "refresh": "1m",
+  "time": { "from": "now-6h", "to": "now" },
+  "templating": {
+    "list": [
+      {
+        "name": "environment",
+        "type": "custom",
+        "current": { "text": "dev", "value": "dev" },
+        "options": [
+          { "text": "dev", "value": "dev" },
+          { "text": "test", "value": "test" },
+          { "text": "prod", "value": "prod" }
+        ]
+      }
+    ]
+  },
+  "panels": [
+    {
+      "title": "SQLi Blocks (CloudWatch 5m sum)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [{ "expr": "aws_wafv2_blocked_requests_sum{rule=~\".*SQLi.*\"}", "legendFormat": "{{rule}}", "refId": "A" }]
+    },
+    {
+      "title": "XSS / Common Rule Blocks",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [{ "expr": "aws_wafv2_blocked_requests_sum{rule=~\".*CommonRuleSet.*\"}", "legendFormat": "{{rule}}", "refId": "A" }]
+    },
+    {
+      "title": "Bot Blocks (requires Bot Control)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [{ "expr": "aws_wafv2_blocked_requests_sum{rule=~\".*Bot.*\"}", "legendFormat": "{{rule}}", "refId": "A" }]
+    },
+    {
+      "title": "Rate Limit Blocks",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [{ "expr": "aws_wafv2_blocked_requests_sum{rule=~\".*RateLimit.*\"}", "legendFormat": "{{rule}}", "refId": "A" }]
+    },
+    {
+      "title": "IP Reputation Blocks",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 16 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [{ "expr": "aws_wafv2_blocked_requests_sum{rule=~\".*IpReputation.*\"}", "legendFormat": "{{rule}}", "refId": "A" }]
+    }
+  ],
+  "schemaVersion": 39,
+  "version": 2
+}

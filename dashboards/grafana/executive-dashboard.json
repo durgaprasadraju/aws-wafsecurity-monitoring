@@ -1,0 +1,52 @@
+{
+  "title": "Executive Dashboard",
+  "uid": "waf-executive",
+  "tags": ["executive"],
+  "refresh": "5m",
+  "time": { "from": "now-24h", "to": "now" },
+  "panels": [
+    {
+      "title": "Total Blocks (latest CW period)",
+      "type": "stat",
+      "gridPos": { "h": 6, "w": 6, "x": 0, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [{ "expr": "sum(aws_wafv2_blocked_requests_sum{rule=\"ALL\"})", "refId": "A" }]
+    },
+    {
+      "title": "Total Allowed (latest CW period)",
+      "type": "stat",
+      "gridPos": { "h": 6, "w": 6, "x": 6, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [{ "expr": "sum(aws_wafv2_allowed_requests_sum{rule=\"ALL\"})", "refId": "A" }]
+    },
+    {
+      "title": "Block Rate %",
+      "type": "gauge",
+      "gridPos": { "h": 6, "w": 6, "x": 12, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [{
+        "expr": "100 * sum(aws_wafv2_blocked_requests_sum{rule=\"ALL\"}) / (sum(aws_wafv2_blocked_requests_sum{rule=\"ALL\"}) + sum(aws_wafv2_allowed_requests_sum{rule=\"ALL\"}) + 1)",
+        "refId": "A"
+      }]
+    },
+    {
+      "title": "Platform Health",
+      "type": "stat",
+      "gridPos": { "h": 6, "w": 6, "x": 18, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [{ "expr": "avg(probe_success{job=\"blackbox-alb\"})", "refId": "A" }]
+    },
+    {
+      "title": "Block Trend",
+      "type": "timeseries",
+      "gridPos": { "h": 10, "w": 24, "x": 0, "y": 6 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        { "expr": "aws_wafv2_blocked_requests_sum{rule=\"ALL\"}", "legendFormat": "Blocked", "refId": "A" },
+        { "expr": "aws_wafv2_allowed_requests_sum{rule=\"ALL\"}", "legendFormat": "Allowed", "refId": "B" }
+      ]
+    }
+  ],
+  "schemaVersion": 39,
+  "version": 2
+}

@@ -1,0 +1,143 @@
+{
+  "widgets": [
+    {
+      "type": "text",
+      "x": 0, "y": 0, "width": 24, "height": 1,
+      "properties": {
+        "markdown": "# AWS WAF Security Dashboard\nReal-time WAF metrics and threat monitoring"
+      }
+    },
+    {
+      "type": "metric",
+      "x": 0, "y": 1, "width": 12, "height": 6,
+      "properties": {
+        "title": "Blocked vs Allowed Requests",
+        "view": "timeSeries",
+        "region": "us-west-2",
+        "period": 300,
+        "stat": "Sum",
+        "metrics": [
+          ["AWS/WAFV2", "BlockedRequests", "WebACL", "waf-security-dev-web-acl", "Region", "us-west-2", "Rule", "ALL"],
+          [".", "AllowedRequests", ".", ".", ".", ".", ".", "."]
+        ]
+      }
+    },
+    {
+      "type": "metric",
+      "x": 12, "y": 1, "width": 12, "height": 6,
+      "properties": {
+        "title": "Traffic Volume",
+        "view": "timeSeries",
+        "region": "us-west-2",
+        "period": 300,
+        "stat": "Sum",
+        "metrics": [
+          ["AWS/WAFV2", "CountedRequests", "WebACL", "waf-security-dev-web-acl", "Region", "us-west-2", "Rule", "ALL"]
+        ]
+      }
+    },
+    {
+      "type": "metric",
+      "x": 0, "y": 7, "width": 8, "height": 6,
+      "properties": {
+        "title": "SQLi Attempts",
+        "view": "timeSeries",
+        "region": "us-west-2",
+        "period": 300,
+        "stat": "Sum",
+        "metrics": [
+          ["AWS/WAFV2", "BlockedRequests", "WebACL", "waf-security-dev-web-acl", "Region", "us-west-2", "Rule", "AWSManagedRulesSQLiRuleSet"]
+        ]
+      }
+    },
+    {
+      "type": "metric",
+      "x": 8, "y": 7, "width": 8, "height": 6,
+      "properties": {
+        "title": "XSS Attempts",
+        "view": "timeSeries",
+        "region": "us-west-2",
+        "period": 300,
+        "stat": "Sum",
+        "metrics": [
+          ["AWS/WAFV2", "BlockedRequests", "WebACL", "waf-security-dev-web-acl", "Region", "us-west-2", "Rule", "AWSManagedRulesKnownBadInputsRuleSet"]
+        ]
+      }
+    },
+    {
+      "type": "metric",
+      "x": 16, "y": 7, "width": 8, "height": 6,
+      "properties": {
+        "title": "Rate Limit Blocks",
+        "view": "timeSeries",
+        "region": "us-west-2",
+        "period": 300,
+        "stat": "Sum",
+        "metrics": [
+          ["AWS/WAFV2", "BlockedRequests", "WebACL", "waf-security-dev-web-acl", "Region", "us-west-2", "Rule", "RateLimitRule"]
+        ]
+      }
+    },
+    {
+      "type": "metric",
+      "x": 0, "y": 13, "width": 12, "height": 6,
+      "properties": {
+        "title": "Top Rules - Blocked",
+        "view": "bar",
+        "region": "us-west-2",
+        "period": 3600,
+        "stat": "Sum",
+        "metrics": [
+          ["AWS/WAFV2", "BlockedRequests", "WebACL", "waf-security-dev-web-acl", "Region", "us-west-2", "Rule", "AWSManagedRulesCommonRuleSet"],
+          [".", ".", ".", ".", ".", ".", ".", "AWSManagedRulesSQLiRuleSet"],
+          [".", ".", ".", ".", ".", ".", ".", "AWSManagedRulesAmazonIpReputationList"],
+          [".", ".", ".", ".", ".", ".", ".", "RateLimitRule"]
+        ]
+      }
+    },
+    {
+      "type": "metric",
+      "x": 12, "y": 13, "width": 12, "height": 6,
+      "properties": {
+        "title": "Firehose Delivery",
+        "view": "timeSeries",
+        "region": "us-west-2",
+        "period": 300,
+        "stat": "Average",
+        "metrics": [
+          ["AWS/Firehose", "DeliveryToS3.Success", "DeliveryStreamName", "aws-waf-logs-waf-security-dev"],
+          [".", "DeliveryToS3.DataFreshness", ".", "."]
+        ]
+      }
+    },
+    {
+      "type": "metric",
+      "x": 0, "y": 19, "width": 12, "height": 6,
+      "properties": {
+        "title": "Attack Trends (Blocked)",
+        "view": "timeSeries",
+        "region": "us-west-2",
+        "period": 3600,
+        "stat": "Sum",
+        "metrics": [
+          ["AWS/WAFV2", "BlockedRequests", "WebACL", "waf-security-dev-web-acl", "Region", "us-west-2", "Rule", "ALL", {"label": "All Blocks"}]
+        ]
+      }
+    },
+    {
+      "type": "metric",
+      "x": 12, "y": 19, "width": 12, "height": 6,
+      "properties": {
+        "title": "Lambda Report Function",
+        "view": "timeSeries",
+        "region": "us-west-2",
+        "period": 300,
+        "stat": "Sum",
+        "metrics": [
+          ["AWS/Lambda", "Errors", "FunctionName", "waf-security-dev-waf-report-generator"],
+          [".", "Invocations", ".", "."]
+        ]
+      }
+    }
+  ]
+}
