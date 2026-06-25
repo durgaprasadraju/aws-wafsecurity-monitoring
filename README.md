@@ -88,7 +88,7 @@ bash tests/terraform/validate.sh dev
 | `tests/` | Unit, integration, e2e, performance tests |
 | `docs/` | Architecture, operations, compliance guides |
 | `cicd/` | GitHub Actions pipelines |
-| `diagrams/` | Mermaid and architecture diagrams |
+| `diagrams/` | Mermaid diagrams and AWS architecture draw.io (`aws-architecture.drawio`) |
 
 ## Key Features
 
@@ -109,12 +109,14 @@ This build intentionally excludes multi-account, AWS Organizations, Amazon Manag
 
 - [High Level Design](docs/architecture/HLD.md)
 - [Low Level Design](docs/architecture/LLD.md)
-- [Architecture Diagrams](diagrams/architecture.md)
+- [Architecture Diagrams](diagrams/architecture.md) (Mermaid)
+- [AWS Architecture Diagram](diagrams/aws-architecture.drawio) (draw.io with AWS icons)
 - [Security Architecture](docs/architecture/security-architecture.md)
 - [Threat Model](docs/architecture/threat-model.md)
 - [Deployment Commands (DEPLOY.md)](DEPLOY.md)
 - [Deployment Guide](docs/guides/deployment-guide.md)
 - [Grafana + Athena Guide](docs/guides/grafana-athena-guide.md)
+- [Project Documentation (PDF)](docs/AWS-WAF-Security-Platform-Documentation.pdf)
 - [Cost Estimation](docs/guides/cost-estimation.md)
 - [SOC Analyst Guide](docs/operations/soc-analyst-guide.md)
 - [Incident Response Guide](docs/operations/incident-response-guide.md)

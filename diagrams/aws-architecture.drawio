@@ -1,0 +1,232 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net" modified="2026-06-25T00:00:00.000Z" agent="WAF Security Platform" version="22.1.0" type="device">
+  <diagram name="AWS Architecture" id="aws-architecture">
+    <mxGraphModel dx="1600" dy="1000" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1000" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+
+        <!-- Title -->
+        <mxCell id="title" value="AWS WAF Security Intelligence &amp; Observability Platform" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;fontSize=20;fontStyle=1;fontColor=#232F3E;" vertex="1" parent="1">
+          <mxGeometry x="400" y="20" width="800" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="subtitle" value="Single-account deployment (dev / test / prod) — us-west-2" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;fontSize=12;fontColor=#5A6C7D;" vertex="1" parent="1">
+          <mxGeometry x="500" y="55" width="600" height="24" as="geometry"/>
+        </mxCell>
+
+        <!-- Users -->
+        <mxCell id="users" value="Users / Internet" style="sketch=0;outlineConnect=0;fontColor=#232F3E;gradientColor=none;fillColor=#232F3E;strokeColor=none;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=11;fontStyle=0;aspect=fixed;pointerEvents=1;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.users;" vertex="1" parent="1">
+          <mxGeometry x="760" y="90" width="78" height="78" as="geometry"/>
+        </mxCell>
+
+        <!-- AWS Cloud boundary -->
+        <mxCell id="aws-cloud" value="AWS Cloud" style="points=[[0,0],[0.25,0],[0.5,0],[0.75,0],[1,0],[1,0.25],[1,0.5],[1,0.75],[1,1],[0.75,1],[0.5,1],[0.25,1],[0,1],[0,0.75],[0,0.5],[0,0.25]];outlineConnect=0;gradientColor=none;html=1;whiteSpace=wrap;fontSize=12;fontStyle=1;container=1;pointerEvents=0;collapsible=0;recursiveResize=0;shape=mxgraph.aws4.group;grIcon=mxgraph.aws4.group_aws_cloud;strokeColor=#232F3E;fillColor=none;verticalAlign=top;align=left;spacingLeft=30;fontColor=#232F3E;dashed=0;" vertex="1" parent="1">
+          <mxGeometry x="40" y="100" width="1520" height="860" as="geometry"/>
+        </mxCell>
+
+        <!-- VPC -->
+        <mxCell id="vpc" value="Amazon VPC (10.0.0.0/16)" style="points=[[0,0],[0.25,0],[0.5,0],[0.75,0],[1,0],[1,0.25],[1,0.5],[1,0.75],[1,1],[0.75,1],[0.5,1],[0.25,1],[0,1],[0,0.75],[0,0.5],[0,0.25]];outlineConnect=0;gradientColor=none;html=1;whiteSpace=wrap;fontSize=12;fontStyle=0;container=1;pointerEvents=0;collapsible=0;recursiveResize=0;shape=mxgraph.aws4.group;grIcon=mxgraph.aws4.group_vpc;strokeColor=#248814;fillColor=none;verticalAlign=top;align=left;spacingLeft=30;fontColor=#248814;dashed=0;" vertex="1" parent="aws-cloud">
+          <mxGeometry x="40" y="60" width="520" height="520" as="geometry"/>
+        </mxCell>
+
+        <!-- IGW -->
+        <mxCell id="igw" value="Internet&lt;br&gt;Gateway" style="sketch=0;outlineConnect=0;fontColor=#232F3E;gradientColor=none;fillColor=#8C4FFF;strokeColor=none;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=11;fontStyle=0;aspect=fixed;pointerEvents=1;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.internet_gateway;" vertex="1" parent="vpc">
+          <mxGeometry x="220" y="50" width="78" height="78" as="geometry"/>
+        </mxCell>
+
+        <!-- ALB -->
+        <mxCell id="alb" value="Application&lt;br&gt;Load Balancer" style="sketch=0;outlineConnect=0;fontColor=#232F3E;gradientColor=none;fillColor=#8C4FFF;strokeColor=none;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=11;fontStyle=0;aspect=fixed;pointerEvents=1;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.application_load_balancer;" vertex="1" parent="vpc">
+          <mxGeometry x="220" y="170" width="78" height="78" as="geometry"/>
+        </mxCell>
+
+        <!-- EC2 Monitoring -->
+        <mxCell id="ec2-mon" value="Amazon EC2&lt;br&gt;Monitoring Server&lt;br&gt;(Prometheus, Grafana,&lt;br&gt;Alertmanager)" style="sketch=0;outlineConnect=0;fontColor=#232F3E;gradientColor=none;fillColor=#ED7100;strokeColor=none;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=10;fontStyle=0;aspect=fixed;pointerEvents=1;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.ec2;" vertex="1" parent="vpc">
+          <mxGeometry x="80" y="320" width="78" height="78" as="geometry"/>
+        </mxCell>
+
+        <!-- EC2 Agents -->
+        <mxCell id="ec2-agents" value="Amazon EC2&lt;br&gt;Agent Nodes (×3)&lt;br&gt;Node Exporter" style="sketch=0;outlineConnect=0;fontColor=#232F3E;gradientColor=none;fillColor=#ED7100;strokeColor=none;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=10;fontStyle=0;aspect=fixed;pointerEvents=1;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.ec2;" vertex="1" parent="vpc">
+          <mxGeometry x="360" y="320" width="78" height="78" as="geometry"/>
+        </mxCell>
+
+        <!-- Public subnet label -->
+        <mxCell id="pub-subnet" value="Public Subnets (2 AZs)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E9F3E6;strokeColor=#248814;fontSize=10;fontColor=#248814;dashed=1;" vertex="1" parent="vpc">
+          <mxGeometry x="40" y="430" width="440" height="60" as="geometry"/>
+        </mxCell>
+
+        <!-- WAF (regional, associated with ALB) -->
+        <mxCell id="waf" value="AWS WAF&lt;br&gt;Web ACL" style="sketch=0;outlineConnect=0;fontColor=#232F3E;gradientColor=none;fillColor=#DD344C;strokeColor=none;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=11;fontStyle=0;aspect=fixed;pointerEvents=1;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.waf;" vertex="1" parent="aws-cloud">
+          <mxGeometry x="620" y="120" width="78" height="78" as="geometry"/>
+        </mxCell>
+
+        <!-- Data & Analytics group -->
+        <mxCell id="data-group" value="Log Ingestion &amp; Analytics" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F2F8FF;strokeColor=#0073BB;fontSize=12;fontStyle=1;fontColor=#0073BB;verticalAlign=top;spacingTop=5;container=1;" vertex="1" parent="aws-cloud">
+          <mxGeometry x="600" y="240" width="520" height="500" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="firehose" value="Kinesis Data&lt;br&gt;Firehose" style="sketch=0;outlineConnect=0;fontColor=#232F3E;gradientColor=none;fillColor=#8C4FFF;strokeColor=none;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=11;fontStyle=0;aspect=fixed;pointerEvents=1;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.kinesis_data_firehose;" vertex="1" parent="data-group">
+          <mxGeometry x="40" y="50" width="78" height="78" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="s3" value="Amazon S3&lt;br&gt;WAF Logs Bucket" style="sketch=0;outlineConnect=0;fontColor=#232F3E;gradientColor=none;fillColor=#7AA116;strokeColor=none;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=11;fontStyle=0;aspect=fixed;pointerEvents=1;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.s3;" vertex="1" parent="data-group">
+          <mxGeometry x="200" y="50" width="78" height="78" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="glue" value="AWS Glue&lt;br&gt;Catalog &amp; Crawler" style="sketch=0;outlineConnect=0;fontColor=#232F3E;gradientColor=none;fillColor=#8C4FFF;strokeColor=none;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=11;fontStyle=0;aspect=fixed;pointerEvents=1;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.glue;" vertex="1" parent="data-group">
+          <mxGeometry x="360" y="50" width="78" height="78" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="athena" value="Amazon Athena&lt;br&gt;Workgroup" style="sketch=0;outlineConnect=0;fontColor=#232F3E;gradientColor=none;fillColor=#8C4FFF;strokeColor=none;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=11;fontStyle=0;aspect=fixed;pointerEvents=1;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.athena;" vertex="1" parent="data-group">
+          <mxGeometry x="200" y="200" width="78" height="78" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="s3-results" value="Amazon S3&lt;br&gt;Athena Results" style="sketch=0;outlineConnect=0;fontColor=#232F3E;gradientColor=none;fillColor=#7AA116;strokeColor=none;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=10;fontStyle=0;aspect=fixed;pointerEvents=1;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.s3;" vertex="1" parent="data-group">
+          <mxGeometry x="360" y="200" width="78" height="78" as="geometry"/>
+        </mxCell>
+
+        <!-- Reporting group -->
+        <mxCell id="report-group" value="Scheduled Reporting &amp; Alerting" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF8F0;strokeColor=#ED7100;fontSize=12;fontStyle=1;fontColor=#ED7100;verticalAlign=top;spacingTop=5;container=1;" vertex="1" parent="aws-cloud">
+          <mxGeometry x="600" y="760" width="520" height="160" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="eventbridge" value="Amazon&lt;br&gt;EventBridge" style="sketch=0;outlineConnect=0;fontColor=#232F3E;gradientColor=none;fillColor=#E7157B;strokeColor=none;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=11;fontStyle=0;aspect=fixed;pointerEvents=1;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.eventbridge;" vertex="1" parent="report-group">
+          <mxGeometry x="40" y="50" width="78" height="78" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="lambda" value="AWS Lambda&lt;br&gt;Report Generator" style="sketch=0;outlineConnect=0;fontColor=#232F3E;gradientColor=none;fillColor=#ED7100;strokeColor=none;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=11;fontStyle=0;aspect=fixed;pointerEvents=1;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.lambda;" vertex="1" parent="report-group">
+          <mxGeometry x="200" y="50" width="78" height="78" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="sns" value="Amazon SNS&lt;br&gt;Reports &amp; Alerts" style="sketch=0;outlineConnect=0;fontColor=#232F3E;gradientColor=none;fillColor=#E7157B;strokeColor=none;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=11;fontStyle=0;aspect=fixed;pointerEvents=1;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.sns;" vertex="1" parent="report-group">
+          <mxGeometry x="360" y="50" width="78" height="78" as="geometry"/>
+        </mxCell>
+
+        <!-- Observability group -->
+        <mxCell id="obs-group" value="Metrics &amp; Dashboards" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F9F0FF;strokeColor=#8C4FFF;fontSize=12;fontStyle=1;fontColor=#8C4FFF;verticalAlign=top;spacingTop=5;container=1;" vertex="1" parent="aws-cloud">
+          <mxGeometry x="1160" y="240" width="320" height="500" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="cloudwatch" value="Amazon&lt;br&gt;CloudWatch" style="sketch=0;outlineConnect=0;fontColor=#232F3E;gradientColor=none;fillColor=#E7157B;strokeColor=none;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=11;fontStyle=0;aspect=fixed;pointerEvents=1;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.cloudwatch_2;" vertex="1" parent="obs-group">
+          <mxGeometry x="120" y="50" width="78" height="78" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="cw-dash" value="CloudWatch&lt;br&gt;Dashboard" style="sketch=0;outlineConnect=0;fontColor=#232F3E;gradientColor=none;fillColor=#E7157B;strokeColor=none;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=10;fontStyle=0;aspect=fixed;pointerEvents=1;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.cloudwatch;" vertex="1" parent="obs-group">
+          <mxGeometry x="120" y="180" width="78" height="78" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="grafana-label" value="Grafana on EC2&lt;br&gt;• Prometheus (metrics)&lt;br&gt;• Athena plugin (logs)&lt;br&gt;• WAF Log Analytics dashboard" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#8C4FFF;fontSize=10;fontColor=#232F3E;align=left;spacingLeft=8;" vertex="1" parent="obs-group">
+          <mxGeometry x="40" y="310" width="240" height="80" as="geometry"/>
+        </mxCell>
+
+        <!-- Security & Management -->
+        <mxCell id="sec-group" value="Security &amp; Encryption" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF0F3;strokeColor=#DD344C;fontSize=12;fontStyle=1;fontColor=#DD344C;verticalAlign=top;spacingTop=5;container=1;" vertex="1" parent="aws-cloud">
+          <mxGeometry x="1160" y="760" width="320" height="160" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="kms" value="AWS KMS&lt;br&gt;Encryption" style="sketch=0;outlineConnect=0;fontColor=#232F3E;gradientColor=none;fillColor=#DD344C;strokeColor=none;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=11;fontStyle=0;aspect=fixed;pointerEvents=1;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.key_management_service;" vertex="1" parent="sec-group">
+          <mxGeometry x="50" y="50" width="78" height="78" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="iam" value="AWS IAM&lt;br&gt;Roles &amp; Policies" style="sketch=0;outlineConnect=0;fontColor=#232F3E;gradientColor=none;fillColor=#DD344C;strokeColor=none;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=11;fontStyle=0;aspect=fixed;pointerEvents=1;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.identity_and_access_management;" vertex="1" parent="sec-group">
+          <mxGeometry x="190" y="50" width="78" height="78" as="geometry"/>
+        </mxCell>
+
+        <!-- Legend -->
+        <mxCell id="legend" value="&lt;b&gt;Data flows&lt;/b&gt;&lt;br&gt;① HTTP traffic: Users → WAF → ALB&lt;br&gt;② Logs: WAF → Firehose → S3 → Glue → Athena&lt;br&gt;③ Reports: EventBridge → Lambda → Athena → SNS&lt;br&gt;④ Metrics: WAF → CloudWatch → EC2 Prometheus → Grafana&lt;br&gt;⑤ Log analytics: Athena → Grafana (Athena data source)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FAFAFA;strokeColor=#CCCCCC;fontSize=10;fontColor=#232F3E;align=left;spacingLeft=10;verticalAlign=top;spacingTop=8;" vertex="1" parent="aws-cloud">
+          <mxGeometry x="40" y="760" width="520" height="100" as="geometry"/>
+        </mxCell>
+
+        <!-- EDGES -->
+        <mxCell id="e-users-igw" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#232F3E;strokeWidth=2;endArrow=block;endFill=1;" edge="1" parent="aws-cloud" source="users" target="igw">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e-igw-alb" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#8C4FFF;strokeWidth=2;endArrow=block;endFill=1;" edge="1" parent="aws-cloud" source="igw" target="alb">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e-users-waf" value="① Inspect" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#DD344C;strokeWidth=2;endArrow=block;endFill=1;fontSize=10;fontColor=#DD344C;" edge="1" parent="aws-cloud" source="users" target="waf">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e-waf-alb" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#DD344C;strokeWidth=2;endArrow=block;endFill=1;dashed=1;" edge="1" parent="aws-cloud" source="waf" target="alb">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e-waf-firehose" value="② Logs" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#7AA116;strokeWidth=2;endArrow=block;endFill=1;fontSize=10;fontColor=#7AA116;" edge="1" parent="aws-cloud" source="waf" target="firehose">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e-firehose-s3" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#7AA116;strokeWidth=2;endArrow=block;endFill=1;" edge="1" parent="data-group" source="firehose" target="s3">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e-s3-glue" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#7AA116;strokeWidth=2;endArrow=block;endFill=1;" edge="1" parent="data-group" source="s3" target="glue">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e-glue-athena" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#8C4FFF;strokeWidth=2;endArrow=block;endFill=1;" edge="1" parent="data-group" source="glue" target="athena">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="399" y="160"/>
+              <mxPoint x="239" y="160"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e-athena-s3r" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#7AA116;strokeWidth=1;endArrow=block;endFill=1;dashed=1;" edge="1" parent="data-group" source="athena" target="s3-results">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e-eb-lambda" value="③ Schedule" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#ED7100;strokeWidth=2;endArrow=block;endFill=1;fontSize=10;fontColor=#ED7100;" edge="1" parent="report-group" source="eventbridge" target="lambda">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e-lambda-athena" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#8C4FFF;strokeWidth=2;endArrow=block;endFill=1;" edge="1" parent="aws-cloud" source="lambda" target="athena">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="840" y="720"/>
+              <mxPoint x="840" y="500"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e-lambda-sns" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#E7157B;strokeWidth=2;endArrow=block;endFill=1;" edge="1" parent="report-group" source="lambda" target="sns">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e-waf-cw" value="④ Metrics" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#E7157B;strokeWidth=2;endArrow=block;endFill=1;fontSize=10;fontColor=#E7157B;" edge="1" parent="aws-cloud" source="waf" target="cloudwatch">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e-cw-ec2" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#ED7100;strokeWidth=2;endArrow=block;endFill=1;" edge="1" parent="aws-cloud" source="cloudwatch" target="ec2-mon">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1320" y="200"/>
+              <mxPoint x="200" y="200"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e-cw-dash" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#E7157B;strokeWidth=1;endArrow=block;endFill=1;dashed=1;" edge="1" parent="obs-group" source="cloudwatch" target="cw-dash">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e-athena-grafana" value="⑤ SQL" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#8C4FFF;strokeWidth=2;endArrow=block;endFill=1;fontSize=10;fontColor=#8C4FFF;" edge="1" parent="aws-cloud" source="athena" target="grafana-label">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1100" y="500"/>
+              <mxPoint x="1100" y="600"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e-ec2-agents" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#ED7100;strokeWidth=1;endArrow=block;endFill=1;dashed=1;" edge="1" parent="vpc" source="ec2-agents" target="ec2-mon">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e-kms-s3" value="encrypt" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#DD344C;strokeWidth=1;endArrow=block;endFill=1;dashed=1;fontSize=9;fontColor=#DD344C;" edge="1" parent="aws-cloud" source="kms" target="s3">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1240" y="720"/>
+              <mxPoint x="880" y="720"/>
+              <mxPoint x="880" y="330"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e-iam-ec2" value="instance profile" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#DD344C;strokeWidth=1;endArrow=block;endFill=1;dashed=1;fontSize=9;fontColor=#DD344C;" edge="1" parent="aws-cloud" source="iam" target="ec2-mon">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1280" y="720"/>
+              <mxPoint x="200" y="720"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

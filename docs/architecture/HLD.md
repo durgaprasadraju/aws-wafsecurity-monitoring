@@ -113,6 +113,8 @@ Grafana provides a unified UI with two complementary data paths:
 
 See [Grafana + Athena Guide](../guides/grafana-athena-guide.md) for setup and troubleshooting.
 
+For a visual AWS service diagram with official icons, see [AWS Architecture Diagram](../../diagrams/aws-architecture.drawio).
+
 ## 8. Compliance Alignment
 
 - **AWS Well-Architected**: Security, Reliability, Performance, Cost, Operations

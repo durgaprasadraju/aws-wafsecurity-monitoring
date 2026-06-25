@@ -1,0 +1,289 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [9 0 R 11 0 R 13 0 R 15 0 R 17 0 R] /Count 5 >>
+endobj
+3 0 obj
+<< >>
+endobj
+4 0 obj
+<< >>
+endobj
+5 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+6 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>
+endobj
+7 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Courier >>
+endobj
+8 0 obj
+<< /Length 4325 >>
+stream
+BT /Helvetica-Bold 18 Tf 50.00 742.00 Td (AWS WAF Security Intelligence & Observability Platform) Tj ET
+BT /Helvetica 10 Tf 50.00 714.00 Td (Project Documentation | Generated 2026-06-25) Tj ET
+BT /Helvetica 10 Tf 50.00 700.00 Td (Enterprise-grade AWS WAF monitoring, analytics, reporting, and observability for single-) Tj ET
+BT /Helvetica 10 Tf 50.00 686.00 Td (account sandbox deployments. This document covers architecture, AWS services, data flows,) Tj ET
+BT /Helvetica 10 Tf 50.00 672.00 Td (Prometheus monitoring, Grafana dashboards, and tests.) Tj ET
+BT /Helvetica-Bold 14 Tf 50.00 644.00 Td (1. Executive Summary) Tj ET
+BT /Helvetica 10 Tf 50.00 630.00 Td (The platform protects web applications with AWS WAF, streams security logs to S3, analyzes) Tj ET
+BT /Helvetica 10 Tf 50.00 616.00 Td (threats with Glue and Athena, delivers scheduled reports via Lambda and SNS, and provides) Tj ET
+BT /Helvetica 10 Tf 50.00 602.00 Td (real-time observability through Prometheus, Grafana, and Alertmanager on EC2.) Tj ET
+BT /Helvetica-Bold 14 Tf 50.00 574.00 Td (2. AWS Architecture Overview) Tj ET
+BT /Helvetica 10 Tf 50.00 560.00 Td (Open diagrams/aws-architecture.drawio in diagrams.net for the full visual diagram with) Tj ET
+BT /Helvetica 10 Tf 50.00 546.00 Td (official AWS service icons. The ASCII overview below matches that layout.) Tj ET
+BT /Courier 8.5 Tf 50.00 518.00 Td (                         [ Users / Internet ]) Tj ET
+BT /Courier 8.5 Tf 50.00 504.00 Td (                                  |) Tj ET
+BT /Courier 8.5 Tf 50.00 490.00 Td (                           [ AWS WAF Web ACL ]) Tj ET
+BT /Courier 8.5 Tf 50.00 476.00 Td (                            /               \\) Tj ET
+BT /Courier 8.5 Tf 50.00 462.00 Td (                    [ ALB + VPC ]      [ CloudWatch Metrics ]) Tj ET
+BT /Courier 8.5 Tf 50.00 448.00 Td (                           |                    |) Tj ET
+BT /Courier 8.5 Tf 50.00 434.00 Td (              [ EC2 Monitoring Server ]   [ CloudWatch Exporter :9106 ]) Tj ET
+BT /Courier 8.5 Tf 50.00 420.00 Td (              Prometheus / Grafana              |) Tj ET
+BT /Courier 8.5 Tf 50.00 406.00 Td (              Alertmanager / Exporters     [ Prometheus :9090 ]) Tj ET
+BT /Courier 8.5 Tf 50.00 392.00 Td (                           |                    |) Tj ET
+BT /Courier 8.5 Tf 50.00 378.00 Td (                           +---------> [ Grafana :3000 ]) Tj ET
+BT /Courier 8.5 Tf 50.00 364.00 Td (                           |) Tj ET
+BT /Courier 8.5 Tf 50.00 350.00 Td (                    [ Kinesis Firehose ]) Tj ET
+BT /Courier 8.5 Tf 50.00 336.00 Td (                           |) Tj ET
+BT /Courier 8.5 Tf 50.00 322.00 Td (                    [ Amazon S3 - WAF Logs ]) Tj ET
+BT /Courier 8.5 Tf 50.00 308.00 Td (                           |) Tj ET
+BT /Courier 8.5 Tf 50.00 294.00 Td (                    [ AWS Glue Catalog ]) Tj ET
+BT /Courier 8.5 Tf 50.00 280.00 Td (                           |) Tj ET
+BT /Courier 8.5 Tf 50.00 266.00 Td (                    [ Amazon Athena ]) Tj ET
+BT /Courier 8.5 Tf 50.00 252.00 Td (                      /         \\) Tj ET
+BT /Courier 8.5 Tf 50.00 238.00 Td (            [ Lambda Reports ]   [ Grafana Athena DS ]) Tj ET
+BT /Courier 8.5 Tf 50.00 224.00 Td (                    |                 \(log analytics\)) Tj ET
+BT /Courier 8.5 Tf 50.00 210.00 Td (               [ Amazon SNS ]) Tj ET
+BT /Courier 8.5 Tf 50.00 196.00 Td (        [ EventBridge schedules Lambda ]) Tj ET
+BT /Courier 8.5 Tf 50.00 182.00 Td (        [ KMS encrypts S3/SNS | IAM roles for all services ]) Tj ET
+BT /Courier 8.5 Tf 50.00 168.00 Td () Tj ET
+BT /Helvetica-Bold 14 Tf 50.00 140.00 Td (3. AWS Services and Importance) Tj ET
+BT /Helvetica 10 Tf 50.00 126.00 Td (- AWS WAF: First line of defense. Blocks SQLi, XSS, bad inputs, bots, rate abuse.) Tj ET
+BT /Helvetica 10 Tf 50.00 112.00 Td (- Application Load Balancer: Distributes HTTP traffic; WAF is associated with the ALB.) Tj ET
+BT /Helvetica 10 Tf 50.00 98.00 Td (- Amazon VPC: Network isolation. Public subnets host ALB and monitoring EC2 instances.) Tj ET
+BT /Helvetica 10 Tf 50.00 84.00 Td (- Kinesis Firehose: Reliable, buffered delivery of WAF logs to S3 with partitioning.) Tj ET
+BT /Helvetica 10 Tf 50.00 70.00 Td (- Amazon S3: Durable log storage \(waf-logs/\), reports, and Athena query results.) Tj ET
+endstream
+endobj
+9 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents 8 0 R /Resources << /Font << /Helvetica 5 0 R /Helvetica-Bold 6 0 R /Courier 7 0 R >> >> >>
+endobj
+10 0 obj
+<< /Length 4569 >>
+stream
+BT /Helvetica 10 Tf 50.00 742.00 Td (- AWS Glue: Catalog and crawler for waf_logs table used by Athena and Grafana.) Tj ET
+BT /Helvetica 10 Tf 50.00 728.00 Td (- Amazon Athena: Serverless SQL on logs for reports, forensics, and Grafana panels.) Tj ET
+BT /Helvetica 10 Tf 50.00 714.00 Td (- AWS Lambda: Scheduled report generator \(HTML/CSV\) triggered by EventBridge.) Tj ET
+BT /Helvetica 10 Tf 50.00 700.00 Td (- Amazon EventBridge: Cron schedules for daily, weekly, and monthly reports.) Tj ET
+BT /Helvetica 10 Tf 50.00 686.00 Td (- Amazon SNS: Email notifications for reports and security/platform alerts.) Tj ET
+BT /Helvetica 10 Tf 50.00 672.00 Td (- Amazon CloudWatch: WAF/Firehose/Lambda/ALB metrics, alarms, and dashboards.) Tj ET
+BT /Helvetica 10 Tf 50.00 658.00 Td (- Amazon EC2: Hosts Prometheus, Grafana, Alertmanager, and exporters \(4 instances\).) Tj ET
+BT /Helvetica 10 Tf 50.00 644.00 Td (- AWS KMS: Encrypts S3 objects, SNS topics, Firehose logs, and Athena results.) Tj ET
+BT /Helvetica 10 Tf 50.00 630.00 Td (- AWS IAM: Least-privilege roles for Firehose, Lambda, Glue, WAF logging, and EC2.) Tj ET
+BT /Helvetica-Bold 14 Tf 50.00 602.00 Td (4. Data Flow \(Log Pipeline\)) Tj ET
+BT /Courier 8.5 Tf 50.00 574.00 Td (  Client Request) Tj ET
+BT /Courier 8.5 Tf 50.00 560.00 Td (       |) Tj ET
+BT /Courier 8.5 Tf 50.00 546.00 Td (       v) Tj ET
+BT /Courier 8.5 Tf 50.00 532.00 Td (  [ ALB ] <--- associated --- [ AWS WAF Web ACL ]) Tj ET
+BT /Courier 8.5 Tf 50.00 518.00 Td (       |                              |) Tj ET
+BT /Courier 8.5 Tf 50.00 504.00 Td (       |                              | logs \(BLOCK/COUNT\)) Tj ET
+BT /Courier 8.5 Tf 50.00 490.00 Td (       v                              v) Tj ET
+BT /Courier 8.5 Tf 50.00 476.00 Td (  Application response         [ Kinesis Firehose ]) Tj ET
+BT /Courier 8.5 Tf 50.00 462.00 Td (                                      |) Tj ET
+BT /Courier 8.5 Tf 50.00 448.00 Td (                                      v GZIP, year/month/day partitions) Tj ET
+BT /Courier 8.5 Tf 50.00 434.00 Td (                               [ S3: waf-logs/ ]) Tj ET
+BT /Courier 8.5 Tf 50.00 420.00 Td (                                      |) Tj ET
+BT /Courier 8.5 Tf 50.00 406.00 Td (                                      v Glue crawler) Tj ET
+BT /Courier 8.5 Tf 50.00 392.00 Td (                               [ Glue: waf_logs table ]) Tj ET
+BT /Courier 8.5 Tf 50.00 378.00 Td (                                      |) Tj ET
+BT /Courier 8.5 Tf 50.00 364.00 Td (                    +-----------------+------------------+) Tj ET
+BT /Courier 8.5 Tf 50.00 350.00 Td (                    v                 v                  v) Tj ET
+BT /Courier 8.5 Tf 50.00 336.00 Td (             [ Athena queries ]  [ Lambda reports ]  [ Grafana Athena ]) Tj ET
+BT /Courier 8.5 Tf 50.00 322.00 Td (                    |                 |                  |) Tj ET
+BT /Courier 8.5 Tf 50.00 308.00 Td (                    v                 v                  v) Tj ET
+BT /Courier 8.5 Tf 50.00 294.00 Td (             [ S3: athena-results ] [ SNS email ]   [ Log dashboards ]) Tj ET
+BT /Courier 8.5 Tf 50.00 280.00 Td () Tj ET
+BT /Helvetica 10 Tf 50.00 266.00 Td (Log pipeline steps: \(1\) WAF evaluates request, \(2\) log record sent to Firehose, \(3\) Firehose) Tj ET
+BT /Helvetica 10 Tf 50.00 252.00 Td (writes to S3, \(4\) Glue crawler updates partitions, \(5\) Athena/Grafana/Lambda query logs.) Tj ET
+BT /Helvetica-Bold 14 Tf 50.00 224.00 Td (5. Metrics Flow \(Prometheus-Centric\)) Tj ET
+BT /Helvetica 10 Tf 50.00 210.00 Td (Prometheus is the central metrics store on the monitoring EC2. CloudWatch Exporter pulls AWS) Tj ET
+BT /Helvetica 10 Tf 50.00 196.00 Td (metrics; Node Exporter and Blackbox Exporter provide infra and ALB health data.) Tj ET
+BT /Courier 8.5 Tf 50.00 168.00 Td (  [ AWS WAF ] ---------> [ CloudWatch Metrics: BlockedRequests, AllowedRequests ]) Tj ET
+BT /Courier 8.5 Tf 50.00 154.00 Td (  [ Firehose ] --------> [ CloudWatch: DeliveryToS3.Success, DataFreshness ]) Tj ET
+BT /Courier 8.5 Tf 50.00 140.00 Td (  [ Lambda ] -----------> [ CloudWatch: Errors, Duration ]) Tj ET
+BT /Courier 8.5 Tf 50.00 126.00 Td (  [ ALB ] --------------> [ CloudWatch: RequestCount, 5XX ]) Tj ET
+BT /Courier 8.5 Tf 50.00 112.00 Td (  [ Athena ] -----------> [ CloudWatch: ProcessedBytes ]) Tj ET
+BT /Courier 8.5 Tf 50.00 98.00 Td (                              |) Tj ET
+BT /Courier 8.5 Tf 50.00 84.00 Td (                              v) Tj ET
+BT /Courier 8.5 Tf 50.00 70.00 Td (                    [ CloudWatch Exporter :9106 ]) Tj ET
+endstream
+endobj
+11 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents 10 0 R /Resources << /Font << /Helvetica 5 0 R /Helvetica-Bold 6 0 R /Courier 7 0 R >> >> >>
+endobj
+12 0 obj
+<< /Length 4449 >>
+stream
+BT /Courier 8.5 Tf 50.00 742.00 Td (                              |) Tj ET
+BT /Courier 8.5 Tf 50.00 728.00 Td (                              v scrape every 15s) Tj ET
+BT /Courier 8.5 Tf 50.00 714.00 Td (                    [ Prometheus :9090 ] <----- [ Node Exporter :9100 x4 EC2 ]) Tj ET
+BT /Courier 8.5 Tf 50.00 700.00 Td (                              ^              [ Blackbox Exporter :9115 -> ALB ]) Tj ET
+BT /Courier 8.5 Tf 50.00 686.00 Td (                              |) Tj ET
+BT /Courier 8.5 Tf 50.00 672.00 Td (                    +---------+---------+) Tj ET
+BT /Courier 8.5 Tf 50.00 658.00 Td (                    v                   v) Tj ET
+BT /Courier 8.5 Tf 50.00 644.00 Td (             [ Grafana :3000 ]   [ Alertmanager :9093 ]) Tj ET
+BT /Courier 8.5 Tf 50.00 630.00 Td (             Prometheus DS            |) Tj ET
+BT /Courier 8.5 Tf 50.00 616.00 Td (             \(Security Overview,       v) Tj ET
+BT /Courier 8.5 Tf 50.00 602.00 Td (              Threat Intel,         [ SNS / on-call ]) Tj ET
+BT /Courier 8.5 Tf 50.00 588.00 Td (              Executive,) Tj ET
+BT /Courier 8.5 Tf 50.00 574.00 Td (              Infrastructure\)) Tj ET
+BT /Courier 8.5 Tf 50.00 560.00 Td () Tj ET
+BT /Helvetica-Bold 14 Tf 50.00 532.00 Td (6. Prometheus Monitoring \(Detailed\)) Tj ET
+BT /Helvetica-Bold 12 Tf 50.00 504.00 Td (6.1 Scrape Targets) Tj ET
+BT /Helvetica 10 Tf 50.00 490.00 Td (Job                            Target / Purpose) Tj ET
+BT /Helvetica 10 Tf 50.00 476.00 Td (prometheus                     localhost:9090 - Self-monitoring) Tj ET
+BT /Helvetica 10 Tf 50.00 462.00 Td (node-exporter                  agent EC2s :9100 - CPU, memory, disk, network) Tj ET
+BT /Helvetica 10 Tf 50.00 448.00 Td (node-exporter-monitoring       localhost:9100 - Monitoring server health) Tj ET
+BT /Helvetica 10 Tf 50.00 434.00 Td (cloudwatch-exporter            localhost:9106 - AWS WAF, Firehose, Lambda, ALB, Athena metric) Tj ET
+BT /Helvetica 10 Tf 50.00 420.00 Td (blackbox-exporter              ALB DNS via :9115 - HTTP probe_success for ALB health) Tj ET
+BT /Helvetica 10 Tf 50.00 406.00 Td (aws-waf-cloudwatch             filtered aws_wafv2_* - WAF-specific metric relabeling) Tj ET
+BT /Helvetica 10 Tf 50.00 392.00 Td (aws-firehose-cloudwatch        filtered aws_firehose_* - Delivery pipeline health) Tj ET
+BT /Helvetica 10 Tf 50.00 378.00 Td (aws-lambda-cloudwatch          filtered aws_lambda_* - Report generator errors) Tj ET
+BT /Helvetica 10 Tf 50.00 364.00 Td (aws-athena-cloudwatch          filtered aws_athena_* - Query volume monitoring) Tj ET
+BT /Helvetica-Bold 12 Tf 50.00 336.00 Td (6.2 Key Prometheus Metrics) Tj ET
+BT /Helvetica 10 Tf 50.00 322.00 Td (- aws_wafv2_blocked_requests_sum - blocked requests by rule) Tj ET
+BT /Helvetica 10 Tf 50.00 308.00 Td (- aws_wafv2_allowed_requests_sum - allowed requests by rule) Tj ET
+BT /Helvetica 10 Tf 50.00 294.00 Td (- aws_firehose_delivery_to_s3_success_average - log delivery health) Tj ET
+BT /Helvetica 10 Tf 50.00 280.00 Td (- aws_lambda_errors_sum - report Lambda failures) Tj ET
+BT /Helvetica 10 Tf 50.00 266.00 Td (- node_cpu_seconds_total - infrastructure CPU) Tj ET
+BT /Helvetica 10 Tf 50.00 252.00 Td (- node_memory_MemAvailable_bytes - memory pressure) Tj ET
+BT /Helvetica 10 Tf 50.00 238.00 Td (- probe_success{job=blackbox-alb} - ALB reachability) Tj ET
+BT /Helvetica 10 Tf 50.00 224.00 Td (- up - scrape target availability) Tj ET
+BT /Helvetica-Bold 12 Tf 50.00 196.00 Td (6.3 Alert Rules \(waf-alerts.yml\)) Tj ET
+BT /Helvetica 10 Tf 50.00 182.00 Td (Alert                          Severity / Condition) Tj ET
+BT /Helvetica 10 Tf 50.00 168.00 Td (HighBlockRate                  critical: Block rate > 10/s for 5m) Tj ET
+BT /Helvetica 10 Tf 50.00 154.00 Td (SQLiSurge                      high: SQLi blocks elevated) Tj ET
+BT /Helvetica 10 Tf 50.00 140.00 Td (XSSSurge                       high: XSS/BadInputs blocks elevated) Tj ET
+BT /Helvetica 10 Tf 50.00 126.00 Td (BotAttackSurge                 medium: Bot control blocks elevated) Tj ET
+BT /Helvetica 10 Tf 50.00 112.00 Td (TopAttackerSpike               high: Sudden coordinated attack pattern) Tj ET
+BT /Helvetica 10 Tf 50.00 98.00 Td (HighCPUUsage                   medium: Node CPU > 85% for 10m) Tj ET
+BT /Helvetica 10 Tf 50.00 84.00 Td (HighMemoryUsage                medium: Memory > 90% for 10m) Tj ET
+BT /Helvetica 10 Tf 50.00 70.00 Td (DiskSpaceLow                   high: Disk < 15% free) Tj ET
+endstream
+endobj
+13 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents 12 0 R /Resources << /Font << /Helvetica 5 0 R /Helvetica-Bold 6 0 R /Courier 7 0 R >> >> >>
+endobj
+14 0 obj
+<< /Length 3823 >>
+stream
+BT /Helvetica 10 Tf 50.00 742.00 Td (LambdaErrors                   high: Report generator failing) Tj ET
+BT /Helvetica 10 Tf 50.00 728.00 Td (FirehoseDeliveryFailures       critical: S3 delivery < 95%) Tj ET
+BT /Helvetica 10 Tf 50.00 714.00 Td (PrometheusTargetDown           critical: Scrape target unreachable) Tj ET
+BT /Helvetica 10 Tf 50.00 700.00 Td (BlackboxProbeFailure           high: ALB health probe failed) Tj ET
+BT /Helvetica-Bold 12 Tf 50.00 672.00 Td (6.4 Storage and Retention) Tj ET
+BT /Helvetica 10 Tf 50.00 658.00 Td (- TSDB retention: 30 days \(prometheus.yml\)) Tj ET
+BT /Helvetica 10 Tf 50.00 644.00 Td (- Scrape interval: 15 seconds) Tj ET
+BT /Helvetica 10 Tf 50.00 630.00 Td (- Rule evaluation interval: 15 seconds) Tj ET
+BT /Helvetica-Bold 14 Tf 50.00 602.00 Td (7. Grafana Dashboards) Tj ET
+BT /Helvetica 10 Tf 50.00 588.00 Td (Dashboard                      Datasource / Purpose) Tj ET
+BT /Helvetica 10 Tf 50.00 574.00 Td (WAF Security Overview          Prometheus: Block/allow rates, SQLi/XSS/Bot, node CPU, ALB pro) Tj ET
+BT /Helvetica 10 Tf 50.00 560.00 Td (Threat Intelligence            Prometheus: Attack trends by rule type) Tj ET
+BT /Helvetica 10 Tf 50.00 546.00 Td (Executive Dashboard            Prometheus: Block rate %, platform health summary) Tj ET
+BT /Helvetica 10 Tf 50.00 532.00 Td (Infrastructure Monitoring      Prometheus: CPU, memory, disk, Firehose, scrape targets) Tj ET
+BT /Helvetica 10 Tf 50.00 518.00 Td (WAF Log Analytics \(Athena\)     Athena: Top attackers, countries, URIs, recent blocks) Tj ET
+BT /Helvetica-Bold 14 Tf 50.00 490.00 Td (8. Reporting and Alerting Flow) Tj ET
+BT /Courier 8.5 Tf 50.00 462.00 Td (  [ EventBridge cron ]) Tj ET
+BT /Courier 8.5 Tf 50.00 448.00 Td (     |  daily 06:00 UTC | weekly Mon 07:00 | monthly 1st 08:00) Tj ET
+BT /Courier 8.5 Tf 50.00 434.00 Td (     v) Tj ET
+BT /Courier 8.5 Tf 50.00 420.00 Td (  [ Lambda Report Generator ]) Tj ET
+BT /Courier 8.5 Tf 50.00 406.00 Td (     |-- runs 6 Athena queries \(top_attackers, countries, sqli, xss, bot, summary\)) Tj ET
+BT /Courier 8.5 Tf 50.00 392.00 Td (     |-- builds HTML + CSV) Tj ET
+BT /Courier 8.5 Tf 50.00 378.00 Td (     v) Tj ET
+BT /Courier 8.5 Tf 50.00 364.00 Td (  [ S3: reports/ ]  +  [ SNS notification email ]) Tj ET
+BT /Courier 8.5 Tf 50.00 336.00 Td (  [ Prometheus alert fires ]) Tj ET
+BT /Courier 8.5 Tf 50.00 322.00 Td (     v) Tj ET
+BT /Courier 8.5 Tf 50.00 308.00 Td (  [ Alertmanager :9093 ] --> route by severity --> [ SNS / receivers ]) Tj ET
+BT /Courier 8.5 Tf 50.00 294.00 Td () Tj ET
+BT /Helvetica-Bold 14 Tf 50.00 266.00 Td (9. Test Suite) Tj ET
+BT /Helvetica 10 Tf 50.00 252.00 Td (Run: pip install -e '.[dev]' && pytest tests/unit/ -v && bash tests/terraform/validate.sh) Tj ET
+BT /Helvetica 10 Tf 50.00 238.00 Td (dev) Tj ET
+BT /Helvetica-Bold 12 Tf 50.00 210.00 Td (9.1 Unit Tests) Tj ET
+BT /Helvetica 10 Tf 50.00 196.00 Td (- test_prometheus_alertmanager.py: Prometheus YAML, 30d retention, alert rules,) Tj ET
+BT /Helvetica 10 Tf 50.00 182.00 Td (  Alertmanager routing) Tj ET
+BT /Helvetica 10 Tf 50.00 168.00 Td (- test_grafana_dashboards.py: Grafana JSON validity, gridPos, Athena dashboard SQL panels) Tj ET
+BT /Helvetica 10 Tf 50.00 154.00 Td (- test_dashboard_validation.py: CloudWatch + Grafana dashboard structure validation) Tj ET
+BT /Helvetica 10 Tf 50.00 140.00 Td (- test_lambda_report_generator.py: CSV/HTML reports, Athena query placeholders, handler) Tj ET
+BT /Helvetica 10 Tf 50.00 126.00 Td (  mocks) Tj ET
+BT /Helvetica 10 Tf 50.00 112.00 Td (- test_terraform_structure.py: Module files, env configs, no hardcoded secrets) Tj ET
+BT /Helvetica-Bold 12 Tf 50.00 84.00 Td (9.2 Integration and E2E Tests) Tj ET
+BT /Helvetica 10 Tf 50.00 70.00 Td (- test_infrastructure.py: ALB response, WAF protection, S3 config, Athena query files) Tj ET
+endstream
+endobj
+15 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents 14 0 R /Resources << /Font << /Helvetica 5 0 R /Helvetica-Bold 6 0 R /Courier 7 0 R >> >> >>
+endobj
+16 0 obj
+<< /Length 2529 >>
+stream
+BT /Helvetica 10 Tf 50.00 742.00 Td (- tests/e2e/run_e2e.py: End-to-end validation after deployment) Tj ET
+BT /Helvetica 10 Tf 50.00 728.00 Td (- tests/terraform/validate.sh: terraform fmt, validate, plan for each environment) Tj ET
+BT /Helvetica 10 Tf 50.00 714.00 Td (- tests/terraform/security_scan.sh: Static security checks on Terraform) Tj ET
+BT /Helvetica-Bold 12 Tf 50.00 686.00 Td (9.3 Expected Test Coverage Areas) Tj ET
+BT /Helvetica 10 Tf 50.00 672.00 Td (- Prometheus scrape config and 12 alert rules across security + infrastructure) Tj ET
+BT /Helvetica 10 Tf 50.00 658.00 Td (- 5 Grafana dashboards including Athena log analytics with 13 SQL targets) Tj ET
+BT /Helvetica 10 Tf 50.00 644.00 Td (- Lambda report generator with 6 Athena query templates) Tj ET
+BT /Helvetica 10 Tf 50.00 630.00 Td (- Terraform modules: vpc, alb, waf, firehose, s3, glue, athena, lambda, monitoring, iam,) Tj ET
+BT /Helvetica 10 Tf 50.00 616.00 Td (  kms, sns, cloudwatch) Tj ET
+BT /Helvetica-Bold 14 Tf 50.00 588.00 Td (10. Deployment Quick Reference) Tj ET
+BT /Courier 8.5 Tf 50.00 560.00 Td (  cd terraform/environments/dev) Tj ET
+BT /Courier 8.5 Tf 50.00 546.00 Td (  terraform init && terraform apply) Tj ET
+BT /Courier 8.5 Tf 50.00 532.00 Td (  terraform output grafana_url) Tj ET
+BT /Courier 8.5 Tf 50.00 518.00 Td (  terraform output alb_dns_name) Tj ET
+BT /Courier 8.5 Tf 50.00 490.00 Td (  # Generate test traffic) Tj ET
+BT /Courier 8.5 Tf 50.00 476.00 Td (  python scripts/attack_simulation/simulate_sqli.py --url http://$ALB --count 20) Tj ET
+BT /Courier 8.5 Tf 50.00 448.00 Td (  # Verify Prometheus) Tj ET
+BT /Courier 8.5 Tf 50.00 434.00 Td (  curl http://<monitoring-ip>:9090/api/v1/query?query=up) Tj ET
+BT /Courier 8.5 Tf 50.00 420.00 Td (  curl http://<monitoring-ip>:9090/api/v1/query?query=aws_wafv2_blocked_requests_sum) Tj ET
+BT /Courier 8.5 Tf 50.00 406.00 Td () Tj ET
+BT /Helvetica-Bold 14 Tf 50.00 378.00 Td (11. Related Documentation) Tj ET
+BT /Helvetica 10 Tf 50.00 364.00 Td (- docs/architecture/HLD.md - High Level Design) Tj ET
+BT /Helvetica 10 Tf 50.00 350.00 Td (- docs/architecture/LLD.md - Low Level Design) Tj ET
+BT /Helvetica 10 Tf 50.00 336.00 Td (- diagrams/aws-architecture.drawio - AWS icon architecture diagram) Tj ET
+BT /Helvetica 10 Tf 50.00 322.00 Td (- docs/guides/grafana-athena-guide.md - Grafana Athena setup) Tj ET
+BT /Helvetica 10 Tf 50.00 308.00 Td (- DEPLOY.md - Copy-paste deployment commands) Tj ET
+BT /Helvetica 10 Tf 50.00 266.00 Td (Internal use - Security Operations Team) Tj ET
+endstream
+endobj
+17 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents 16 0 R /Resources << /Font << /Helvetica 5 0 R /Helvetica-Bold 6 0 R /Courier 7 0 R >> >> >>
+endobj
+xref
+0 18
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000143 00000 n 
+0000000164 00000 n 
+0000000185 00000 n 
+0000000255 00000 n 
+0000000330 00000 n 
+0000000398 00000 n 
+0000004775 00000 n 
+0000004945 00000 n 
+0000009567 00000 n 
+0000009739 00000 n 
+0000014241 00000 n 
+0000014413 00000 n 
+0000018289 00000 n 
+0000018461 00000 n 
+0000021043 00000 n 
+trailer
+<< /Size 18 /Root 1 0 R >>
+startxref
+21215
+%%EOF

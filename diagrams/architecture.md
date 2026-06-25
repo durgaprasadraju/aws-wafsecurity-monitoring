@@ -247,4 +247,5 @@ flowchart TB
 
 - [High Level Design (HLD)](../docs/architecture/HLD.md)
 - [Low Level Design (LLD)](../docs/architecture/LLD.md)
+- [AWS Architecture Diagram (draw.io)](aws-architecture.drawio)
 - [Grafana + Athena Guide](../docs/guides/grafana-athena-guide.md)
