@@ -5,15 +5,17 @@ Enterprise-grade AWS WAF monitoring, analytics, reporting, and observability pla
 ## Architecture
 
 ```
-Internet → ALB → AWS WAF → CloudWatch Metrics
-                    ↓
-              Kinesis Firehose → S3 → Glue → Athena
-                    ↓                              ↓
-              CloudWatch Dashboards          Lambda Reports → SNS
-                    
-EC2 Monitoring Server: Prometheus + Grafana + Alertmanager + Exporters
+Internet → ALB → AWS WAF ─┬→ CloudWatch Metrics → CloudWatch Exporter → Prometheus ─┐
+                           │                                                          ├→ Grafana :3000
+                           └→ Kinesis Firehose → S3 → Glue → Athena ─────────────────┘
+                                                              ↓
+                                                    Lambda Reports → SNS
+
+EC2 Monitoring Server: Prometheus + Grafana (+ Athena plugin) + Alertmanager + Exporters
 EC2 Agent Nodes: Node Exporter (×3)
 ```
+
+Grafana uses two data paths: **Prometheus** for real-time metrics and **Athena** for WAF log forensics. See [Grafana + Athena Guide](docs/guides/grafana-athena-guide.md).
 
 ## Quick Start
 
@@ -95,6 +97,7 @@ bash tests/terraform/validate.sh dev
 - **Analytics**: Glue catalog + Athena workgroup with named queries
 - **Reporting**: Lambda generates daily/weekly/monthly HTML + CSV reports via EventBridge
 - **Observability**: Self-hosted Prometheus/Grafana/Alertmanager on EC2
+- **Grafana Athena**: WAF log analytics dashboard querying S3 logs via Athena — see [Grafana + Athena Guide](docs/guides/grafana-athena-guide.md)
 - **Alerting**: CloudWatch alarms + Prometheus alert rules + SNS notifications
 - **Security**: KMS encryption, IAM least privilege, public access blocked
 
@@ -106,10 +109,12 @@ This build intentionally excludes multi-account, AWS Organizations, Amazon Manag
 
 - [High Level Design](docs/architecture/HLD.md)
 - [Low Level Design](docs/architecture/LLD.md)
+- [Architecture Diagrams](diagrams/architecture.md)
 - [Security Architecture](docs/architecture/security-architecture.md)
 - [Threat Model](docs/architecture/threat-model.md)
 - [Deployment Commands (DEPLOY.md)](DEPLOY.md)
 - [Deployment Guide](docs/guides/deployment-guide.md)
+- [Grafana + Athena Guide](docs/guides/grafana-athena-guide.md)
 - [Cost Estimation](docs/guides/cost-estimation.md)
 - [SOC Analyst Guide](docs/operations/soc-analyst-guide.md)
 - [Incident Response Guide](docs/operations/incident-response-guide.md)

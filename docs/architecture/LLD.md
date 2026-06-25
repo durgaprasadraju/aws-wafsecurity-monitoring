@@ -68,6 +68,20 @@ Key columns: timestamp, action, terminatingruleid, httprequest (struct with clie
 - Results: `s3://{bucket}/athena-results/` (SSE-KMS)
 - CloudWatch metrics enabled
 
+### Grafana Athena Queries
+The WAF Log Analytics dashboard executes SQL against `{database}.waf_logs` using `$__timeFilter()` on `from_unixtime(timestamp/1000)`. Key query patterns:
+
+| Panel | SQL pattern |
+|-------|-------------|
+| Top Attackers | `GROUP BY httprequest.clientip, httprequest.country` |
+| Top Countries | `GROUP BY httprequest.country` |
+| SQLi Attempts | `terminatingruleid LIKE '%SQLi%'` |
+| XSS Attempts | `terminatingruleid LIKE '%BadInputs%'` |
+| Recent Blocks | `ORDER BY timestamp DESC LIMIT 100` |
+| Hourly Trends | `date_trunc('hour', from_unixtime(timestamp/1000))` |
+
+Source: `dashboards/grafana/athena-log-analytics.json`
+
 ## 6. Lambda Report Generator
 
 | Schedule | Cron | Report Type | Lookback |
@@ -91,10 +105,30 @@ Key columns: timestamp, action, terminatingruleid, httprequest (struct with clie
 |---------|------|-----------------|
 | Prometheus | 9090 | prom/prometheus:v2.51.0 |
 | Grafana | 3000 | grafana/grafana:10.4.0 |
+| Grafana Athena plugin | — | `grafana-athena-datasource` (via `GF_INSTALL_PLUGINS`) |
 | Alertmanager | 9093 | prom/alertmanager:v0.27.0 |
 | CloudWatch Exporter | 9106 | prom/cloudwatch-exporter |
 | Blackbox Exporter | 9115 | prom/blackbox-exporter |
 | Node Exporter | 9100 | systemd native |
+
+### Grafana Provisioning
+| Item | Location / value |
+|------|------------------|
+| Data sources | `/opt/observability/grafana/provisioning/datasources/datasources.yml` |
+| Dashboard provider | `/opt/observability/grafana/provisioning/dashboards/dashboards.yml` |
+| Athena dashboard JSON | `/opt/observability/grafana/provisioning/dashboards/json/athena-log-analytics.json` |
+| Dashboard folder | WAF Security |
+| Default datasource | Prometheus (`uid: prometheus`) |
+| Athena datasource | `uid: athena`, workgroup `waf-security-{env}-waf-analytics` |
+
+### Grafana Dashboards
+| Dashboard | UID | Datasource | Purpose |
+|-----------|-----|------------|---------|
+| WAF Security Overview | `waf-security-overview` | Prometheus | Block/allow rates, node CPU, ALB probe |
+| Threat Intelligence | `waf-threat-intel` | Prometheus | SQLi, XSS, Bot, Rate Limit blocks |
+| Executive Dashboard | `waf-executive` | Prometheus | Block rate %, platform health |
+| Infrastructure Monitoring | `waf-infrastructure` | Prometheus | CPU, memory, disk, Firehose delivery |
+| WAF Log Analytics (Athena) | `waf-athena-analytics` | Athena | Top attackers, countries, URIs, recent blocks |
 
 ### Agent Nodes (EC2-02, 03, 04)
 - Node Exporter on port 9100
@@ -106,7 +140,7 @@ Key columns: timestamp, action, terminatingruleid, httprequest (struct with clie
 | firehose-role | firehose.amazonaws.com | S3 PutObject, KMS |
 | lambda-report-role | lambda.amazonaws.com | Athena, S3, SNS, Glue read |
 | glue-crawler-role | glue.amazonaws.com | S3 read, Glue service |
-| ec2-monitoring-role | ec2.amazonaws.com | CloudWatch read, EC2 describe |
+| ec2-monitoring-role | ec2.amazonaws.com | CloudWatch read, EC2 describe, Athena query, Glue read, S3 read/write (results) |
 
 ## 9. KMS Key Policy
 

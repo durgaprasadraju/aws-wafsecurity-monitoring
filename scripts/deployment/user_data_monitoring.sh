@@ -7,6 +7,10 @@ ALB_DNS="${alb_dns_name}"
 ENVIRONMENT="${environment}"
 AWS_REGION="${aws_region}"
 ACCOUNT_ID="${account_id}"
+ATHENA_DATABASE="${athena_database}"
+ATHENA_WORKGROUP="${athena_workgroup}"
+S3_BUCKET="${s3_bucket_name}"
+ATHENA_DASHBOARD_B64="${athena_dashboard_b64}"
 
 exec > /var/log/waf-monitoring-setup.log 2>&1
 echo "=== WAF Monitoring setup started at $(date) ==="
@@ -37,7 +41,7 @@ UNIT
 systemctl daemon-reload
 systemctl enable --now node_exporter
 
-mkdir -p /opt/observability/{prometheus/rules,grafana/provisioning/datasources,alertmanager,exporters}
+mkdir -p /opt/observability/{prometheus/rules,grafana/provisioning/{datasources,dashboards/json},alertmanager,exporters}
 cd /opt/observability
 
 # Wait for agent nodes to register
@@ -148,7 +152,35 @@ datasources:
     jsonData:
       authType: default
       defaultRegion: $AWS_REGION
+  - name: Athena
+    uid: athena
+    type: grafana-athena-datasource
+    access: proxy
+    jsonData:
+      authType: default
+      defaultRegion: $AWS_REGION
+      catalog: AwsDataCatalog
+      database: $ATHENA_DATABASE
+      workgroup: $ATHENA_WORKGROUP
+      outputLocation: s3://$S3_BUCKET/athena-results/
 GRAFANA
+
+cat > grafana/provisioning/dashboards/dashboards.yml <<'DASHPROV'
+apiVersion: 1
+providers:
+  - name: waf-dashboards
+    orgId: 1
+    folder: WAF Security
+    type: file
+    disableDeletion: false
+    editable: true
+    updateIntervalSeconds: 30
+    allowUiUpdates: true
+    options:
+      path: /etc/grafana/provisioning/dashboards/json
+DASHPROV
+
+echo "$ATHENA_DASHBOARD_B64" | base64 -d > grafana/provisioning/dashboards/json/athena-log-analytics.json
 
 cat > alertmanager/alertmanager.yml <<'AM'
 global:
@@ -186,6 +218,7 @@ services:
       - GF_SECURITY_ADMIN_PASSWORD=ChangeMe123!
       - GF_USERS_ALLOW_SIGN_UP=false
       - GF_SERVER_HTTP_ADDR=0.0.0.0
+      - GF_INSTALL_PLUGINS=grafana-athena-datasource
     volumes:
       - grafana-data:/var/lib/grafana
       - ./grafana/provisioning:/etc/grafana/provisioning

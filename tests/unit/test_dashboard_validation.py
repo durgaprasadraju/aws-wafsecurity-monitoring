@@ -43,3 +43,12 @@ class TestGrafanaDashboard:
         data = json.loads(path.read_text())
         assert "templating" in data
         assert len(data["templating"]["list"]) >= 1
+
+    def test_athena_dashboard_has_sql_panels(self):
+        path = ROOT / "dashboards/grafana/athena-log-analytics.json"
+        data = json.loads(path.read_text())
+        sql_panels = [
+            p for p in data["panels"]
+            if any("rawSQL" in t for t in p.get("targets", []))
+        ]
+        assert len(sql_panels) >= 5

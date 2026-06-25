@@ -14,7 +14,8 @@
 |-----------|----------|---------|
 | WAF Security (CW) | CloudWatch Dashboards | Real-time block/allow metrics |
 | Security Overview | Grafana :3000 | Combined WAF + infrastructure |
-| Threat Intelligence | Grafana / Athena | Top attackers, countries, URIs |
+| Threat Intelligence | Grafana (Prometheus) | Block trends by rule (SQLi, XSS, Bot) |
+| WAF Log Analytics (Athena) | Grafana / Athena | Top attackers, countries, URIs — see [Grafana + Athena Guide](../guides/grafana-athena-guide.md) |
 
 ## Investigating a Blocked Request
 

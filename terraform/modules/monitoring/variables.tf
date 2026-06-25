@@ -59,3 +59,15 @@ variable "alb_dns_name" {
 variable "aws_region" {
   type = string
 }
+
+variable "athena_database" {
+  type = string
+}
+
+variable "athena_workgroup" {
+  type = string
+}
+
+variable "s3_bucket_name" {
+  type = string
+}

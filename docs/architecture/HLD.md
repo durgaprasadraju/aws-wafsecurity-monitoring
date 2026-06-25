@@ -12,7 +12,8 @@ The AWS WAF Security Intelligence & Observability Platform provides centralized 
 | Store logs securely | S3 + KMS encryption + lifecycle |
 | Analyze attack patterns | Glue + Athena |
 | Generate reports | Lambda + EventBridge + SNS |
-| Visualize attacks | CloudWatch + Grafana dashboards |
+| Visualize attacks (metrics) | CloudWatch + Grafana (Prometheus) dashboards |
+| Visualize attacks (logs) | Grafana + Athena (WAF log analytics dashboard) |
 | Monitor infrastructure | Prometheus + Node Exporter |
 | Alert security teams | CloudWatch Alarms + Alertmanager + SNS |
 | Support multiple environments | Terraform environments (dev/test/prod) |
@@ -43,6 +44,10 @@ The AWS WAF Security Intelligence & Observability Platform provides centralized 
 
 ### 3.6 Observability Layer (EC2-based)
 - **Monitoring Server**: Prometheus, Grafana, Alertmanager, CloudWatch Exporter, Blackbox Exporter
+- **Grafana data sources**: Prometheus (default), CloudWatch, Athena (`grafana-athena-datasource` plugin)
+- **Grafana dashboards**:
+  - *Metrics*: Security Overview, Threat Intelligence, Executive, Infrastructure Monitoring (Prometheus / CloudWatch)
+  - *Logs*: WAF Log Analytics (Athena) — top attackers, countries, URIs, SQLi/XSS attempts
 - **Agent Nodes** (×3): Node Exporter for infrastructure metrics
 
 ### 3.7 Alerting Layer
@@ -52,14 +57,34 @@ The AWS WAF Security Intelligence & Observability Platform provides centralized 
 
 ## 4. Data Flow
 
+### 4.1 Request & Log Pipeline
 1. Client requests hit ALB
 2. WAF evaluates rules, allows or blocks
-3. WAF logs stream to Firehose → S3 (partitioned)
-4. Glue crawler updates catalog
-5. Athena queries analyze logs
-6. Lambda generates scheduled reports
-7. CloudWatch metrics scraped by CloudWatch Exporter → Prometheus
-8. Grafana visualizes metrics; Alertmanager routes alerts
+3. WAF emits CloudWatch metrics (BlockedRequests, AllowedRequests)
+4. WAF logs stream to Firehose → S3 (partitioned by year/month/day)
+5. Glue crawler updates the `waf_logs` catalog table
+
+### 4.2 Analytics & Reporting Pipeline
+6. Athena queries analyze logs in S3 (workgroup + named queries)
+7. Lambda generates scheduled HTML/CSV reports via Athena → SNS
+8. Grafana queries Athena directly for interactive log analytics dashboards
+
+### 4.3 Metrics & Alerting Pipeline
+9. CloudWatch Exporter scrapes WAF, Firehose, Lambda, and ALB metrics → Prometheus
+10. Node Exporter and Blackbox Exporter provide infrastructure and ALB health metrics
+11. Grafana visualizes Prometheus metrics; Alertmanager routes alerts to SNS
+
+```mermaid
+flowchart LR
+    WAF[AWS WAF] --> CW[CloudWatch Metrics]
+    WAF --> FH[Firehose] --> S3[(S3 Logs)]
+    S3 --> Glue[Glue] --> Athena[Athena]
+    Athena --> Lambda[Lambda Reports]
+    Athena --> Grafana[Grafana Athena DS]
+    CW --> CWX[CloudWatch Exporter] --> Prom[Prometheus] --> Grafana
+    Lambda --> SNS[SNS]
+    Prom --> AM[Alertmanager] --> SNS
+```
 
 ## 5. Environment Strategy
 
@@ -77,7 +102,18 @@ The AWS WAF Security Intelligence & Observability Platform provides centralized 
 - Amazon OpenSearch
 - Cross-account IAM roles
 
-## 7. Compliance Alignment
+## 7. Grafana Visualization Model
+
+Grafana provides a unified UI with two complementary data paths:
+
+| Path | Source | Dashboard examples | Use case |
+|------|--------|-------------------|----------|
+| **Metrics** | CloudWatch → Prometheus | Security Overview, Threat Intelligence, Executive | Real-time block rates, rule trends, infra health |
+| **Logs** | S3 → Glue → Athena | WAF Log Analytics (Athena) | Forensics: IPs, URIs, countries, attack details |
+
+See [Grafana + Athena Guide](../guides/grafana-athena-guide.md) for setup and troubleshooting.
+
+## 8. Compliance Alignment
 
 - **AWS Well-Architected**: Security, Reliability, Performance, Cost, Operations
 - **CIS AWS Foundations**: Encryption, logging, least privilege IAM

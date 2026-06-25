@@ -1,0 +1,310 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": { "type": "grafana", "uid": "-- Grafana --" },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [],
+  "panels": [
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 },
+      "id": 100,
+      "panels": [],
+      "title": "Traffic Summary (Athena)",
+      "type": "row"
+    },
+    {
+      "datasource": { "type": "grafana-athena-datasource", "uid": "athena" },
+      "fieldConfig": {
+        "defaults": { "color": { "mode": "thresholds" }, "unit": "short" },
+        "overrides": []
+      },
+      "gridPos": { "h": 4, "w": 6, "x": 0, "y": 1 },
+      "id": 1,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "/^total_requests$/", "values": false },
+        "textMode": "auto"
+      },
+      "targets": [
+        {
+          "connectionArgs": { "catalog": "__default", "database": "__default", "region": "__default" },
+          "datasource": { "type": "grafana-athena-datasource", "uid": "athena" },
+          "format": "table",
+          "rawSQL": "SELECT COUNT(*) AS total_requests FROM __ATHENA_DATABASE__.waf_logs WHERE $__timeFilter(from_unixtime(timestamp/1000))",
+          "refId": "A"
+        }
+      ],
+      "title": "Total Requests",
+      "type": "stat"
+    },
+    {
+      "datasource": { "type": "grafana-athena-datasource", "uid": "athena" },
+      "fieldConfig": {
+        "defaults": { "color": { "mode": "thresholds" }, "thresholds": { "steps": [{ "color": "red", "value": null }] }, "unit": "short" },
+        "overrides": []
+      },
+      "gridPos": { "h": 4, "w": 6, "x": 6, "y": 1 },
+      "id": 2,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "/^blocked$/", "values": false },
+        "textMode": "auto"
+      },
+      "targets": [
+        {
+          "connectionArgs": { "catalog": "__default", "database": "__default", "region": "__default" },
+          "datasource": { "type": "grafana-athena-datasource", "uid": "athena" },
+          "format": "table",
+          "rawSQL": "SELECT SUM(CASE WHEN action = 'BLOCK' THEN 1 ELSE 0 END) AS blocked FROM __ATHENA_DATABASE__.waf_logs WHERE $__timeFilter(from_unixtime(timestamp/1000))",
+          "refId": "A"
+        }
+      ],
+      "title": "Blocked Requests",
+      "type": "stat"
+    },
+    {
+      "datasource": { "type": "grafana-athena-datasource", "uid": "athena" },
+      "fieldConfig": {
+        "defaults": { "color": { "mode": "thresholds" }, "thresholds": { "steps": [{ "color": "green", "value": null }] }, "unit": "short" },
+        "overrides": []
+      },
+      "gridPos": { "h": 4, "w": 6, "x": 12, "y": 1 },
+      "id": 3,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "/^allowed$/", "values": false },
+        "textMode": "auto"
+      },
+      "targets": [
+        {
+          "connectionArgs": { "catalog": "__default", "database": "__default", "region": "__default" },
+          "datasource": { "type": "grafana-athena-datasource", "uid": "athena" },
+          "format": "table",
+          "rawSQL": "SELECT SUM(CASE WHEN action = 'ALLOW' THEN 1 ELSE 0 END) AS allowed FROM __ATHENA_DATABASE__.waf_logs WHERE $__timeFilter(from_unixtime(timestamp/1000))",
+          "refId": "A"
+        }
+      ],
+      "title": "Allowed Requests",
+      "type": "stat"
+    },
+    {
+      "datasource": { "type": "grafana-athena-datasource", "uid": "athena" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "max": 100,
+          "min": 0,
+          "thresholds": { "steps": [{ "color": "green", "value": null }, { "color": "yellow", "value": 5 }, { "color": "red", "value": 20 }] },
+          "unit": "percent"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 4, "w": 6, "x": 18, "y": 1 },
+      "id": 4,
+      "options": {
+        "minVizHeight": 75,
+        "minVizWidth": 75,
+        "orientation": "auto",
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "/^block_rate_pct$/", "values": false },
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true
+      },
+      "targets": [
+        {
+          "connectionArgs": { "catalog": "__default", "database": "__default", "region": "__default" },
+          "datasource": { "type": "grafana-athena-datasource", "uid": "athena" },
+          "format": "table",
+          "rawSQL": "SELECT ROUND(100.0 * SUM(CASE WHEN action = 'BLOCK' THEN 1 ELSE 0 END) / NULLIF(COUNT(*), 0), 2) AS block_rate_pct FROM __ATHENA_DATABASE__.waf_logs WHERE $__timeFilter(from_unixtime(timestamp/1000))",
+          "refId": "A"
+        }
+      ],
+      "title": "Block Rate %",
+      "type": "gauge"
+    },
+    {
+      "datasource": { "type": "grafana-athena-datasource", "uid": "athena" },
+      "fieldConfig": {
+        "defaults": { "color": { "mode": "palette-classic" }, "unit": "short" },
+        "overrides": []
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 5 },
+      "id": 5,
+      "options": { "legend": { "displayMode": "list", "placement": "bottom" }, "tooltip": { "mode": "single" } },
+      "targets": [
+        {
+          "connectionArgs": { "catalog": "__default", "database": "__default", "region": "__default" },
+          "datasource": { "type": "grafana-athena-datasource", "uid": "athena" },
+          "format": "time_series",
+          "rawSQL": "SELECT date_trunc('hour', from_unixtime(timestamp/1000)) AS time, COUNT(*) AS total FROM __ATHENA_DATABASE__.waf_logs WHERE $__timeFilter(from_unixtime(timestamp/1000)) GROUP BY 1 ORDER BY 1",
+          "refId": "A"
+        },
+        {
+          "connectionArgs": { "catalog": "__default", "database": "__default", "region": "__default" },
+          "datasource": { "type": "grafana-athena-datasource", "uid": "athena" },
+          "format": "time_series",
+          "rawSQL": "SELECT date_trunc('hour', from_unixtime(timestamp/1000)) AS time, SUM(CASE WHEN action = 'BLOCK' THEN 1 ELSE 0 END) AS blocked FROM __ATHENA_DATABASE__.waf_logs WHERE $__timeFilter(from_unixtime(timestamp/1000)) GROUP BY 1 ORDER BY 1",
+          "refId": "B"
+        }
+      ],
+      "title": "Hourly Traffic Trend",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "grafana-athena-datasource", "uid": "athena" },
+      "fieldConfig": {
+        "defaults": { "color": { "mode": "palette-classic" }, "unit": "short" },
+        "overrides": []
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 5 },
+      "id": 6,
+      "options": { "legend": { "displayMode": "list", "placement": "bottom" }, "tooltip": { "mode": "single" } },
+      "targets": [
+        {
+          "connectionArgs": { "catalog": "__default", "database": "__default", "region": "__default" },
+          "datasource": { "type": "grafana-athena-datasource", "uid": "athena" },
+          "format": "time_series",
+          "rawSQL": "SELECT date_trunc('hour', from_unixtime(timestamp/1000)) AS time, SUM(CASE WHEN terminatingruleid LIKE '%SQLi%' OR terminatingruleid LIKE '%SQL%' THEN 1 ELSE 0 END) AS sqli FROM __ATHENA_DATABASE__.waf_logs WHERE action = 'BLOCK' AND $__timeFilter(from_unixtime(timestamp/1000)) GROUP BY 1 ORDER BY 1",
+          "refId": "A"
+        },
+        {
+          "connectionArgs": { "catalog": "__default", "database": "__default", "region": "__default" },
+          "datasource": { "type": "grafana-athena-datasource", "uid": "athena" },
+          "format": "time_series",
+          "rawSQL": "SELECT date_trunc('hour', from_unixtime(timestamp/1000)) AS time, SUM(CASE WHEN terminatingruleid LIKE '%BadInputs%' OR terminatingruleid LIKE '%XSS%' THEN 1 ELSE 0 END) AS xss FROM __ATHENA_DATABASE__.waf_logs WHERE action = 'BLOCK' AND $__timeFilter(from_unixtime(timestamp/1000)) GROUP BY 1 ORDER BY 1",
+          "refId": "B"
+        }
+      ],
+      "title": "SQLi / XSS Blocks by Hour",
+      "type": "timeseries"
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 13 },
+      "id": 101,
+      "panels": [],
+      "title": "Threat Intelligence (Athena)",
+      "type": "row"
+    },
+    {
+      "datasource": { "type": "grafana-athena-datasource", "uid": "athena" },
+      "fieldConfig": { "defaults": { "custom": { "align": "auto", "cellOptions": { "type": "auto" }, "inspect": false }, "unit": "short" }, "overrides": [] },
+      "gridPos": { "h": 10, "w": 12, "x": 0, "y": 14 },
+      "id": 7,
+      "options": { "cellHeight": "sm", "footer": { "countRows": false, "fields": "", "reducer": ["sum"], "show": false }, "showHeader": true, "sortBy": [{ "desc": true, "displayName": "blocked_count" }] },
+      "targets": [
+        {
+          "connectionArgs": { "catalog": "__default", "database": "__default", "region": "__default" },
+          "datasource": { "type": "grafana-athena-datasource", "uid": "athena" },
+          "format": "table",
+          "rawSQL": "SELECT httprequest.clientip AS client_ip, httprequest.country AS country, COUNT(*) AS blocked_count FROM __ATHENA_DATABASE__.waf_logs WHERE action = 'BLOCK' AND $__timeFilter(from_unixtime(timestamp/1000)) GROUP BY httprequest.clientip, httprequest.country ORDER BY blocked_count DESC LIMIT 25",
+          "refId": "A"
+        }
+      ],
+      "title": "Top Attackers",
+      "type": "table"
+    },
+    {
+      "datasource": { "type": "grafana-athena-datasource", "uid": "athena" },
+      "fieldConfig": { "defaults": { "custom": { "align": "auto", "cellOptions": { "type": "auto" }, "inspect": false }, "unit": "short" }, "overrides": [] },
+      "gridPos": { "h": 10, "w": 12, "x": 12, "y": 14 },
+      "id": 8,
+      "options": { "cellHeight": "sm", "footer": { "countRows": false, "fields": "", "reducer": ["sum"], "show": false }, "showHeader": true, "sortBy": [{ "desc": true, "displayName": "blocked" }] },
+      "targets": [
+        {
+          "connectionArgs": { "catalog": "__default", "database": "__default", "region": "__default" },
+          "datasource": { "type": "grafana-athena-datasource", "uid": "athena" },
+          "format": "table",
+          "rawSQL": "SELECT httprequest.country AS country, COUNT(*) AS total_requests, SUM(CASE WHEN action = 'BLOCK' THEN 1 ELSE 0 END) AS blocked FROM __ATHENA_DATABASE__.waf_logs WHERE $__timeFilter(from_unixtime(timestamp/1000)) GROUP BY httprequest.country ORDER BY blocked DESC LIMIT 20",
+          "refId": "A"
+        }
+      ],
+      "title": "Top Countries",
+      "type": "table"
+    },
+    {
+      "datasource": { "type": "grafana-athena-datasource", "uid": "athena" },
+      "fieldConfig": { "defaults": { "custom": { "align": "auto", "cellOptions": { "type": "auto" }, "inspect": false }, "unit": "short" }, "overrides": [] },
+      "gridPos": { "h": 10, "w": 12, "x": 0, "y": 24 },
+      "id": 9,
+      "options": { "cellHeight": "sm", "footer": { "countRows": false, "fields": "", "reducer": ["sum"], "show": false }, "showHeader": true, "sortBy": [{ "desc": true, "displayName": "attempts" }] },
+      "targets": [
+        {
+          "connectionArgs": { "catalog": "__default", "database": "__default", "region": "__default" },
+          "datasource": { "type": "grafana-athena-datasource", "uid": "athena" },
+          "format": "table",
+          "rawSQL": "SELECT httprequest.clientip AS client_ip, httprequest.uri AS uri, COUNT(*) AS attempts FROM __ATHENA_DATABASE__.waf_logs WHERE action = 'BLOCK' AND (terminatingruleid LIKE '%SQLi%' OR terminatingruleid LIKE '%SQL%') AND $__timeFilter(from_unixtime(timestamp/1000)) GROUP BY httprequest.clientip, httprequest.uri ORDER BY attempts DESC LIMIT 20",
+          "refId": "A"
+        }
+      ],
+      "title": "SQLi Attempts",
+      "type": "table"
+    },
+    {
+      "datasource": { "type": "grafana-athena-datasource", "uid": "athena" },
+      "fieldConfig": { "defaults": { "custom": { "align": "auto", "cellOptions": { "type": "auto" }, "inspect": false }, "unit": "short" }, "overrides": [] },
+      "gridPos": { "h": 10, "w": 12, "x": 12, "y": 24 },
+      "id": 10,
+      "options": { "cellHeight": "sm", "footer": { "countRows": false, "fields": "", "reducer": ["sum"], "show": false }, "showHeader": true, "sortBy": [{ "desc": true, "displayName": "attempts" }] },
+      "targets": [
+        {
+          "connectionArgs": { "catalog": "__default", "database": "__default", "region": "__default" },
+          "datasource": { "type": "grafana-athena-datasource", "uid": "athena" },
+          "format": "table",
+          "rawSQL": "SELECT httprequest.clientip AS client_ip, httprequest.uri AS uri, COUNT(*) AS attempts FROM __ATHENA_DATABASE__.waf_logs WHERE action = 'BLOCK' AND (terminatingruleid LIKE '%XSS%' OR terminatingruleid LIKE '%BadInputs%') AND $__timeFilter(from_unixtime(timestamp/1000)) GROUP BY httprequest.clientip, httprequest.uri ORDER BY attempts DESC LIMIT 20",
+          "refId": "A"
+        }
+      ],
+      "title": "XSS Attempts",
+      "type": "table"
+    },
+    {
+      "datasource": { "type": "grafana-athena-datasource", "uid": "athena" },
+      "fieldConfig": { "defaults": { "custom": { "align": "auto", "cellOptions": { "type": "auto" }, "inspect": false }, "unit": "short" }, "overrides": [] },
+      "gridPos": { "h": 12, "w": 24, "x": 0, "y": 34 },
+      "id": 11,
+      "options": { "cellHeight": "sm", "footer": { "countRows": false, "fields": "", "reducer": ["sum"], "show": false }, "showHeader": true, "sortBy": [{ "desc": true, "displayName": "event_time" }] },
+      "targets": [
+        {
+          "connectionArgs": { "catalog": "__default", "database": "__default", "region": "__default" },
+          "datasource": { "type": "grafana-athena-datasource", "uid": "athena" },
+          "format": "table",
+          "rawSQL": "SELECT date_format(from_unixtime(timestamp/1000), '%Y-%m-%d %H:%i:%s') AS event_time, httprequest.clientip AS client_ip, httprequest.country AS country, httprequest.uri AS uri, httprequest.httpmethod AS method, terminatingruleid AS rule_id, action FROM __ATHENA_DATABASE__.waf_logs WHERE action = 'BLOCK' AND $__timeFilter(from_unixtime(timestamp/1000)) ORDER BY timestamp DESC LIMIT 100",
+          "refId": "A"
+        }
+      ],
+      "title": "Recent Blocked Requests",
+      "type": "table"
+    }
+  ],
+  "refresh": "5m",
+  "schemaVersion": 39,
+  "tags": ["waf", "athena", "logs"],
+  "templating": { "list": [] },
+  "time": { "from": "now-24h", "to": "now" },
+  "title": "WAF Log Analytics (Athena)",
+  "uid": "waf-athena-analytics",
+  "version": 1
+}

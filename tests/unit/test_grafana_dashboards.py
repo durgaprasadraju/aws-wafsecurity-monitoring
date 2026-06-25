@@ -40,3 +40,22 @@ class TestGrafanaDashboards:
         for panel in data["panels"]:
             if "datasource" in panel:
                 assert panel["datasource"]["type"] == "prometheus"
+
+    def test_athena_dashboard_exists(self):
+        path = DASHBOARD_DIR / "athena-log-analytics.json"
+        assert path.exists()
+        data = json.loads(path.read_text())
+        assert data["title"] == "WAF Log Analytics (Athena)"
+        assert data["uid"] == "waf-athena-analytics"
+
+    def test_athena_dashboard_uses_athena_datasource(self):
+        data = json.loads((DASHBOARD_DIR / "athena-log-analytics.json").read_text())
+        athena_panels = [
+            p for p in data["panels"]
+            if p.get("datasource", {}).get("type") == "grafana-athena-datasource"
+        ]
+        assert len(athena_panels) >= 5
+        for panel in athena_panels:
+            for target in panel.get("targets", []):
+                assert "rawSQL" in target
+                assert "__ATHENA_DATABASE__" in target["rawSQL"]

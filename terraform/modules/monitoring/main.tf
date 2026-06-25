@@ -27,11 +27,19 @@ resource "aws_instance" "monitoring_server" {
   iam_instance_profile   = var.instance_profile_name
   key_name               = var.key_name != "" ? var.key_name : null
   user_data = templatefile("${path.module}/../../../scripts/deployment/user_data_monitoring.sh", {
-    project_name = var.project_name
-    alb_dns_name = var.alb_dns_name
-    environment  = var.environment
-    aws_region   = var.aws_region
-    account_id   = data.aws_caller_identity.current.account_id
+    project_name          = var.project_name
+    alb_dns_name          = var.alb_dns_name
+    environment           = var.environment
+    aws_region            = var.aws_region
+    account_id            = data.aws_caller_identity.current.account_id
+    athena_database       = var.athena_database
+    athena_workgroup      = var.athena_workgroup
+    s3_bucket_name        = var.s3_bucket_name
+    athena_dashboard_b64 = base64encode(replace(
+      file("${path.module}/../../../dashboards/grafana/athena-log-analytics.json"),
+      "__ATHENA_DATABASE__",
+      var.athena_database
+    ))
   })
 
   root_block_device {

@@ -159,4 +159,7 @@ module "monitoring" {
   monitoring_server_ami = var.monitoring_server_ami
   alb_dns_name          = module.alb.alb_dns_name
   aws_region            = var.aws_region
+  athena_database       = module.glue.database_name
+  athena_workgroup      = module.athena.workgroup_name
+  s3_bucket_name        = module.s3.bucket_name
 }

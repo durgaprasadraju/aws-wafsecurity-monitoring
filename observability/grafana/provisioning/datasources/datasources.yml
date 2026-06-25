@@ -2,6 +2,7 @@ apiVersion: 1
 
 datasources:
   - name: Prometheus
+    uid: prometheus
     type: prometheus
     access: proxy
     url: http://localhost:9090
@@ -9,6 +10,7 @@ datasources:
     editable: false
 
   - name: CloudWatch
+    uid: cloudwatch
     type: cloudwatch
     access: proxy
     jsonData:
@@ -16,6 +18,7 @@ datasources:
       defaultRegion: us-west-2
 
   - name: Athena
+    uid: athena
     type: grafana-athena-datasource
     access: proxy
     jsonData:
